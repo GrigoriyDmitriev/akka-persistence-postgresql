@@ -9,14 +9,13 @@ import com.typesafe.config.ConfigFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Milliseconds, Second, Span}
 
-import scala.language.postfixOps
-
-class PgAsyncJournalSpec extends JournalSpec(ConfigFactory.load("pg-application.conf"))
-  with JournalTable
-  with RecreateSchema
-  with ScalaFutures
-  with CreateTables
-  with PgConfig {
+class PgAsyncJournalSpec
+    extends JournalSpec(ConfigFactory.load("pg-application.conf"))
+    with JournalTable
+    with RecreateSchema
+    with ScalaFutures
+    with CreateTables
+    with PgConfig {
 
   override implicit val patienceConfig = PatienceConfig(timeout = Span(1, Second), interval = Span(100, Milliseconds))
 
@@ -25,9 +24,12 @@ class PgAsyncJournalSpec extends JournalSpec(ConfigFactory.load("pg-application.
   import driver.api._
 
   override def beforeAll() {
-    pluginConfig.database.run(recreateSchema
-      .andThen(journals.schema.create)
-    ).futureValue
+    pluginConfig.database
+      .run(
+        recreateSchema
+          .andThen(journals.schema.create)
+      )
+      .futureValue
     super.beforeAll()
   }
 
@@ -38,6 +40,6 @@ class PgAsyncJournalSpec extends JournalSpec(ConfigFactory.load("pg-application.
   }
 
   override protected def supportsRejectingNonSerializableObjects: CapabilityFlag = false
+
+  protected override def supportsSerialization: CapabilityFlag = false
 }
-
-
