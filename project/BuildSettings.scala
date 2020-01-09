@@ -16,24 +16,25 @@ object BuildSettings {
     scalafmtOnCompile := true
   )
 
-  val publishingCredentials = (for {
-    username <- Option(System.getenv().get("SONATYPE_USERNAME"))
-    password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
-  } yield Seq(Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)))
-    .getOrElse(Seq())
+  val publishingCredentials = Option(System.getenv("GITHUB_TOKEN"))
+    .map { token =>
+      Credentials(
+        "GitHub Package Registry",
+        "maven.pkg.github.com",
+        "GrigoriyDmitriev",
+        token
+      )
+    }
 
   val publishSettings = Seq(
     publishMavenStyle := true,
     pomIncludeRepository := { _ =>
       false
     },
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value)
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    },
+    publishTo := (for {
+      owner <- Option("GrigoriyDmitriev")
+      repo <- Option("akka-persistence-postgresql")
+    } yield "GitHub Package Registry" at s"https://maven.pkg.github.com/$owner/$repo"),
     pomExtra := <url>https://github.com/WegenenVerkeer/akka-persistence-postgresql</url>
       <licenses>
         <license>

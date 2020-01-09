@@ -2,6 +2,7 @@ import BuildSettings._
 import Dependencies._
 
 organization := "be.wegenenverkeer"
+ThisBuild / version := "0.14.0-akka2.6"
 
 concurrentRestrictions in Global += Tags.limit(Tags.Test, 1)
 
